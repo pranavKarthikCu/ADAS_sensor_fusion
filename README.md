@@ -6,7 +6,7 @@ A production-style ADAS perception pipeline that fuses camera and LiDAR sensor d
 
 ## Demo
 
-![Fusion Demo](demo_screenshot.jpg)
+![Fusion Demo](demo_screenshot.jpg)(fusionDemo.gif)
 
 > YOLOv8 detections (white boxes) fused with LiDAR point cloud (depth-coloured dots). Bold coloured boxes are Kalman-tracked objects with velocity arrows. Each colour corresponds to a unique track ID.
 
