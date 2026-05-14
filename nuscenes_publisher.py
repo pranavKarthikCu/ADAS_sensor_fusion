@@ -1,17 +1,3 @@
-"""
-nuScenes Publisher Node — ROS2 Jazzy
-=====================================
-Replays nuScenes mini data as live ROS2 topics, simulating
-real sensor streams. The fusion_node subscribes to these.
-
-Topics published:
-  /camera/image        (sensor_msgs/Image)
-  /lidar/points        (sensor_msgs/PointCloud2)
-
-Run AFTER fusion_node is running:
-  ros2 run adas_fusion nuscenes_publisher
-"""
-
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image, PointCloud2, PointField
@@ -27,9 +13,6 @@ class NuScenesPublisher(Node):
     """
     Reads nuScenes samples from disk and publishes them as
     ROS2 Image and PointCloud2 messages at ~10Hz.
-
-    This simulates what actual sensor drivers do in a real vehicle —
-    they continuously publish to topics and any node can subscribe.
     """
 
     def __init__(self, dataroot: str = '/mnt/e/ADAS/v1.0-mini',
