@@ -162,19 +162,3 @@ State vector: `[x, y, vx, vy]` — 2D position and velocity.
 
 ### Data Association
 Hungarian algorithm minimizes the total cost of matching detections to existing tracks using 1-IoU as the cost metric. Unmatched detections spawn new tracks; unmatched tracks increment their miss counter and are pruned after 3 consecutive misses.
-
----
-
-## What's Next
-- [ ] 3D Kalman state `[x, y, z, vx, vy, vz]` using full LiDAR position
-- [ ] KITTI dataset support
-- [ ] CARLA simulator integration
-- [ ] Extended Kalman Filter (EKF) for non-linear motion
-
----
-
-## References
-- [nuScenes Dataset](https://www.nuscenes.org/)
-- [SORT: Simple Online and Realtime Tracking](https://arxiv.org/abs/1602.00763)
-- [YOLOv8 by Ultralytics](https://github.com/ultralytics/ultralytics)
-- [ROS2 Jazzy Documentation](https://docs.ros.org/en/jazzy/)
