@@ -1,24 +1,3 @@
-"""
-Camera-LiDAR Sensor Fusion Pipeline with Kalman Tracker
-========================================================
-Designed for the nuScenes mini dataset.
-
-Pipeline:
-  1. Load a nuScenes sample (camera image + LiDAR sweep)
-  2. Run YOLOv8 on the camera image  -> 2D bounding boxes
-  3. Project LiDAR points onto the image plane
-  4. Associate LiDAR points with bounding boxes -> 3D position estimates
-  5. Feed detections into a Kalman tracker across frames
-  6. Visualize fused tracks on the image
-
-Setup:
-    pip install nuscenes-devkit ultralytics opencv-python numpy
-
-Download nuScenes mini:
-    https://www.nuscenes.org/nuscenes#download  (free, ~4 GB)
-    Extract to ./data/nuscenes/
-"""
-
 import numpy as np
 import cv2
 from dataclasses import dataclass, field
