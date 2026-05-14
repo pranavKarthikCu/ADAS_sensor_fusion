@@ -1,40 +1,3 @@
-"""
-ADAS Fusion Node — ROS2 Jazzy
-==============================
-Wraps the existing sensor_fusion pipeline into a ROS2 node.
-
-Architecture:
-  SUBSCRIBERS:
-    /camera/image        (sensor_msgs/Image)      — camera frame
-    /lidar/points        (sensor_msgs/PointCloud2) — LiDAR sweep
-
-  PUBLISHERS:
-    /adas/tracks         (geometry_msgs/PoseArray) — Kalman track positions
-    /adas/visualization  (sensor_msgs/Image)       — annotated camera image
-
-How it works:
-  1. Camera and LiDAR messages are time-synced using message_filters
-  2. On each synced pair, YOLOv8 detects objects in the image
-  3. LiDAR points are projected onto the image plane
-  4. Detections are fused with LiDAR depth estimates
-  5. FusionTracker (Kalman) updates tracks
-  6. Track positions published as PoseArray
-  7. Annotated image published for visualization in RViz2
-
-Run:
-  # Terminal 1 — start the node
-  cd ~/ros2_ws
-  colcon build --packages-select adas_fusion
-  source install/setup.bash
-  ros2 run adas_fusion fusion_node
-
-  # Terminal 2 — check tracks are publishing
-  ros2 topic echo /adas/tracks
-
-  # Terminal 3 — replay nuScenes data as ROS2 topics (see nuscenes_publisher.py)
-  ros2 run adas_fusion nuscenes_publisher
-"""
-
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
@@ -93,16 +56,6 @@ def pointcloud2_to_xyz(msg: PointCloud2) -> np.ndarray:
 # ─────────────────────────────────────────────
 
 class FusionNode(Node):
-    """
-    ROS2 node that fuses camera + LiDAR data and publishes Kalman tracks.
-
-    Key ROS2 concepts used here:
-      - Node:             the basic ROS2 processing unit
-      - Subscriber:       receives data from a topic
-      - Publisher:        sends data to a topic
-      - message_filters:  time-synchronizes two subscribers
-      - QoS profile:      reliability/latency settings for topics
-    """
 
     def __init__(self):
         super().__init__('adas_fusion_node')
@@ -131,8 +84,7 @@ class FusionNode(Node):
         # Lazy-load YOLO to avoid slow import at node startup
         self._yolo = None
 
-        # Camera intrinsic matrix K — in production this comes from
-        # /camera/camera_info topic (CameraInfo message). Hard-coded
+        # Camera intrinsic matrix K  Hard-coded
         # here to match nuScenes CAM_FRONT calibration.
         self.K = np.array([
             [1266.417,    0.0,    816.267],
@@ -140,24 +92,19 @@ class FusionNode(Node):
             [   0.0,     0.0,      1.0  ],
         ])
 
-        # LiDAR → camera extrinsic (identity here — set correctly for
-        # your sensor rig, or subscribe to /tf for dynamic transforms)
+        # LiDAR → camera extrinsic 
         self.lidar2cam = np.eye(4)
 
-        # LiDAR → ego transform (same)
+        # LiDAR → ego transform 
         self.lid2ego = np.eye(4)
 
         # ── QoS profile ───────────────────────────────────────────────
-        # BEST_EFFORT matches what most LiDAR drivers publish with.
-        # Using RELIABLE here for compatibility with our nuScenes publisher.
+       
         qos = QoSProfile(depth=10)
         qos.reliability = ReliabilityPolicy.RELIABLE
 
         # ── Subscribers (time-synchronized) ──────────────────────────
-        # message_filters.ApproximateTimeSynchronizer matches camera
-        # and LiDAR messages within `slop` seconds of each other.
-        # This is critical because camera runs at ~15Hz and LiDAR at ~20Hz
-        # — they don't produce frames at the same instant.
+        
         cam_sub  = message_filters.Subscriber(self, Image,       '/camera/image',   qos_profile=qos)
         lidar_sub = message_filters.Subscriber(self, PointCloud2, '/lidar/points',   qos_profile=qos)
 
@@ -247,8 +194,7 @@ class FusionNode(Node):
         active_tracks = self.tracker.update(detections)
 
         # ── Step 6: Publish tracks as PoseArray ───────────────────────
-        # PoseArray is a standard ROS2 message — a list of 3D poses.
-        # The path planner or braking node would subscribe to this topic.
+       
         pose_array = PoseArray()
         pose_array.header.stamp    = self.get_clock().now().to_msg()
         pose_array.header.frame_id = 'ego_vehicle'   # coordinate frame
